@@ -11840,17 +11840,24 @@
 					for (; f && !this.isAdRelated(f);) f = f.parentElement;
 					return f ? !1 : this.hasAudio(d) ? !0 : (_.A.log("Ignoring video without audio:", d), !1);
 				}
-				traverseDOM(d) {
-					if (d instanceof HTMLVideoElement) {
-						this.checkVideoState(d);
-						return;
-					}
-					let f = document.createTreeWalker(d, NodeFilter.SHOW_ELEMENT, { acceptNode: (d) => d.tagName === "VIDEO" || d.shadowRoot ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP });
-					for (; f.nextNode();) {
-						let d = f.currentNode;
-						d instanceof HTMLVideoElement && this.checkVideoState(d), d.shadowRoot && this.traverseDOM(d.shadowRoot);
-					}
-				}
+                traverseDOM(root) {
+                    if (!root) return;
+                    const elements = [root];
+
+                    if (root.querySelectorAll) {
+                        elements.push(...root.querySelectorAll("*"));
+                    }
+
+                    for (const element of elements) {
+                        if (element instanceof HTMLVideoElement) {
+                        this.checkVideoState(element);
+                        }
+
+                        if (element.shadowRoot) {
+                        this.traverseDOM(element.shadowRoot);
+                        }
+                    }
+                }
 				checkVideoState(d) {
 					if (this.videoCache.has(d)) return;
 					this.videoCache.add(d);
@@ -12115,7 +12122,7 @@
 						supportGMPromises;
 						supportGMGetValues;
 						constructor() {
-							this.supportGM = typeof GM_getValue == "function", this.supportGMPromises = b.O6 && typeof GM?.getValue == "function", this.supportGMGetValues = b.O6 && typeof GM?.getValues == "function", v.A.log(`[VOT Storage] GM Promises: ${this.supportGMPromises} | GM: ${this.supportGM}`);
+							this.supportGM = false, this.supportGMPromises = false, this.supportGMGetValues = b.O6 && typeof GM?.getValues == "function", v.A.log(`[VOT Storage] GM Promises: ${this.supportGMPromises} | GM: ${this.supportGM}`);
 						}
 						get isSupportOnlyLS() {
 							return !this.supportGM && !this.supportGMPromises;
